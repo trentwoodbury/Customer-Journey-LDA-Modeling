@@ -53,7 +53,7 @@ def words_to_corpus(words):
     corpus = [dictionary.doc2bow(text) for text in words]
     return corpus
 
-def gen_lda_model(corpus, topic_qty = 10, word_qty=5):
+def gen_lda_model(corpus, topic_qty = 10, word_qty=4):
     ldamodel = models.ldamodel.LdaModel(corpus, num_topics=10, id2word = dictionary, passes=20)
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
 
@@ -71,6 +71,19 @@ def split_nums_names(topics_list):
             name_vals[idx].append(word_num[0])
     return num_vals, name_vals
 
+
+def pandas_visualization(num_vals, name_vals, word_qty):
+    ten_themes = pd.DataFrame()
+    for i in range(10):
+        new_df = pd.Series([name_vals[i][0], num_vals[i][0] for i in range(word_qty)])
+
+        ten_themes = ten_themes.append(new_df, ignore_index = True)
+
+    ten_themes.columns = ['Word {0}', 'Word {1} Theme'.format(i, i) for i in range(word_qty)]
+
+    return ten_themes
+
+
 def main():
     filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
     path = data_to_path(filepath, 400000)
@@ -78,6 +91,8 @@ def main():
     corpus = words_to_corpus(words)
     lda_model = gen_lda_model(corpus)
     num_vals, name_vals = split_nums_names(lda_model)
+    print pandas_visualization(num_vals, name_vals, 4)
 
+    
 if __name__ == "__main__":
     main()
