@@ -12,7 +12,7 @@ import pymc as pm
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def data_to_path(filepath, shortener):
+def data_to_path(filepath, qty):
     #INPUT: filepath, path to data
     #INPUT: shortener, quantity to cut data (to run faster)
 
@@ -21,14 +21,14 @@ def data_to_path(filepath, shortener):
 
     #Create a numpy array of user journeys
     paths = np.array([ 'Path'])
-    for row_ind in range(2, len(pre_df)-shortener):
+    for i in range(2, qty):
+        #select random row without replacement
+        #range starts at row 3 to not include headers
+        row_ind = np.random.choice(range(3, len(pre_df)), replace = False)
         #extract path from row
         path = list(str(pre_df.iloc[row_ind, :]).split())[1]
         #add path to paths numpy array
         paths = np.vstack((paths, path))
-
-    #remove header (paths[0] is the header) and separate words
-    paths = paths[1:]
 
     for journey in range(len(paths)):
         paths[journey] = paths[journey][0].replace('->', ' ')
@@ -49,50 +49,72 @@ def paths_to_docs(path):
     return words
 
 def words_to_corpus(words):
-    dictionary = corpora.Dictionary(unique_words)
+    #INPUT: list of lists of words
+    #OUTPUT: Corpus of words matched with frequency and dictionary
+    dictionary = corpora.Dictionary(words)
     corpus = [dictionary.doc2bow(text) for text in words]
-    return corpus
+    return corpus, dictionary
 
-def gen_lda_model(corpus, topic_qty = 10, word_qty=4):
+def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=4):
+    #INPUT: corpus and dictionary.
+    #INPUT: topic_qty: how many topics to cluster
+    #INPUT: word_qty: how many words
+    #OUPUT: lda model in gensim print format
+
     ldamodel = models.ldamodel.LdaModel(corpus, num_topics=10, id2word = dictionary, passes=20)
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
 
 def split_nums_names(topics_list):
+    #INPUT: LDA model in gensim printed format
+    #OUTPUT: num_vals, list of percents of topic explained by each term
+    #OUTPUT: name_vals, list of terms
     num_vals = []
     name_vals = []
     for idx, topic in enumerate(topics_list):
+        # * sign splits number and term, hence we split on it
         topic_split = topic[1].split('*')
+        # There is always 1 num val before the names
+        #we are simultaneously instantiating this num_vals list
         num_vals.append([topic_split[0]])
+        #instantiate name_vals list
         name_vals.append([])
+        #for loop to add values to num_vals and name_vals lists
         for word_num in topic_split[1:]:
             word_num =  word_num.split('+')
+            #we test if word_num > 1 to make sure we have a pair of word and number (we do not always)
             if len(word_num) > 1:
                 num_vals[idx].append(word_num[1])
             name_vals[idx].append(word_num[0])
     return num_vals, name_vals
 
 
-def pandas_visualization(num_vals, name_vals, word_qty):
-    ten_themes = pd.DataFrame()
-    for i in range(10):
-        new_df = pd.Series([name_vals[i][0], num_vals[i][0] for i in range(word_qty)])
+def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
+    #INPUT: ouput of split_num_names
+    #INPUT: word_qty: quantity of words (columns) to show in dataframe
+    #INPUT: topic_qty: number of topics (rows) to show in dataframe
+    n_themes = []
+    for i in range(topic_qty):
+        #current series is always the current row
+        current_series = []
+        names = [name_vals[i][0] for i in range(word_qty)]
+        nums = [num_vals[i][0] for i in range(word_qty)]
+        #alternatingly append name and value
+        for i in range(word_qty):
+            current_series.append(names[i])
+            current_series.append(nums[i])
+        n_themes.append(current_series)
 
-        ten_themes = ten_themes.append(new_df, ignore_index = True)
-
-    ten_themes.columns = ['Word {0}', 'Word {1} Theme'.format(i, i) for i in range(word_qty)]
-
-    return ten_themes
-
+    return pd.DataFrame(n_themes)
 
 def main():
     filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
-    path = data_to_path(filepath, 400000)
+    path = data_to_path(filepath, 10000)
     words = paths_to_docs(path)
-    corpus = words_to_corpus(words)
-    lda_model = gen_lda_model(corpus)
+    corpus, dictionary = words_to_corpus(words)
+    lda_model = gen_lda_model(corpus, dictionary)
     num_vals, name_vals = split_nums_names(lda_model)
-    print pandas_visualization(num_vals, name_vals, 4)
+    print pandas_visualization(num_vals, name_vals)
 
-    
+
 if __name__ == "__main__":
     main()
