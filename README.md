@@ -14,7 +14,7 @@ This process involved numerous steps:
     <li>Building a prototype LDA model using Gensim
     <li>Developing preliminary visualizations for the model results
     <li>Tweaking the LDA model for optimization
-    <li>(Yet to come) Interpreting the model results
-    <li>(Yet to come) Gaining insights from these results
-    <li>(Yet to come) Creating visualizations to communicate these insights
+    <li><strong>(Yet to come)</strong> Interpreting the model results
+    <li><strong>(Yet to come)</strong> Gaining insights from these results
+    <li><strong>(Yet to come)</strong>Creating visualizations to communicate these insights
 </ul>
