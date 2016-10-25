@@ -7,7 +7,7 @@
 Current status of this project is open. This means that there will inevitably be bugs and issues in this code. Furthermore, this readme is still under construction.
 
 ## Process
-<img src='images/optimal.png' style="width:300px;height:250px;"><br>
+<img src='images/optimal.png'"><br>
 This process involved numerous steps:
 <ul>
     <li>Formatting the data properly
