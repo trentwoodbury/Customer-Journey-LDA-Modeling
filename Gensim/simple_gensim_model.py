@@ -1,23 +1,24 @@
-from collections import OrderedDict
-import csv
+from functools import partial
 from gensim import corpora, models
 import matplotlib.pyplot as plt
-import nltk
-from nltk.stem.porter import PorterStemmer
-from nltk.tokenize import RegexpTokenizer
+import multiprocessing
 import numpy as np
+import os
 import pandas as pd
-from pprint import pprint
-import pymc as pm
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def data_to_path(filepath, qty):
+def load_data(filepath):
+    #INPUT: filepath to csv file
+    #OUTPUT: returns dataframe of filepath's csv file
+    pre_df = pd.read_csv(filepath, header = 1)
+    return pre_df
+
+def data_to_path(pre_df, qty):
     #INPUT: filepath, path to data
     #INPUT: shortener, quantity to cut data (to run faster)
 
-    #import data
-    pre_df = pd.read_csv(filepath, header=1)
+    # pre_df = pre_df_and_qty[0]
+    # qty = pre_df_and_qty[1]
 
     #Create a numpy array of user journeys
     paths = np.array([ 'Path'])
@@ -41,7 +42,7 @@ def paths_to_docs(path):
     #INPUT: path, output of data_to_paths() function
     #OUTPUT: words, a list of documents (list of lists of words)
     words = []
-    for val in path:
+    for val in path[0]:
         for string in val:
             word_list = string.split()
             #treat journey.entry as stopword.
@@ -97,8 +98,8 @@ def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
     for i in range(topic_qty):
         #current series is always the current row
         current_series = []
-        names = [name_vals[i][0] for i in range(word_qty)]
-        nums = [num_vals[i][0] for i in range(word_qty)]
+        names = [name_vals[i][j] for j in range(word_qty)]
+        nums = [num_vals[i][j] for j in range(word_qty)]
         #alternatingly append name and value
         for i in range(word_qty):
             current_series.append(names[i])
@@ -128,15 +129,25 @@ def graph_term_import(df_row, theme_num):
 
 
 def main():
-    filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
-    path = data_to_path(filepath, 1000)
-    print "Data Imported \n"
+    #this conditional allows us to skip the computationally intensive
+    #parts of the code for running the code multiple times
+    if not os.path.exists('/path.npz'):
+        filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
+        pre_df = load_data(filepath)
+
+        #for multiprocessing (using all 4 cores)
+        pool = multiprocessing.Pool(4)
+        data_partial = partial(data_to_path, pre_df)
+        path = pool.map(data_partial, [100])
+        np.savez_compressed('path.npz', path)
+
+    else:
+        path = np.load('path.npz')
+
+    print path
     words = paths_to_docs(path)
-    print "Document converted \n"
     corpus, dictionary = words_to_corpus(words)
-    print "Building gensim LDA Model. This may take a long time. \n"
     lda_model = gen_lda_model(corpus, dictionary)
-    print "Model built! \n"
     num_vals, name_vals = split_nums_names(lda_model)
     print "Terms of Importance by Topic (each row is a topic) \n"
     word_df = pandas_visualization(num_vals, name_vals)
