@@ -92,6 +92,7 @@ def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
     #INPUT: ouput of split_num_names
     #INPUT: word_qty: quantity of words (columns) to show in dataframe
     #INPUT: topic_qty: number of topics (rows) to show in dataframe
+    #OUPUT: Dataframe of results (for readability)
     n_themes = []
     for i in range(topic_qty):
         #current series is always the current row
@@ -106,15 +107,42 @@ def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
 
     return pd.DataFrame(n_themes)
 
+
+def graph_term_import(df_row, theme_num):
+    #INPUT: df_row, a row from the output of pandas_visualization
+    #INPUT: theme_num, the theme number
+    #OUPUT: Horizontal Bar Chart of term import in theme
+    #output is limited to 3 top terms.
+    x = [df_row[i*2] for i in range(3)]
+    y = [df_row[i*2+1] for i in range(3)]
+    x_pos = np.arange(3)
+    fig = plt.figure(figsize = (10, 5))
+    ax = fig.add_subplot(111)
+    ax.barh(x_pos, y, align='center', alpha=0.4)
+    ax.set_yticks(x_pos)
+    ax.set_yticklabels(x)
+    ax.set_xlabel('Correlation')
+    ax.set_ylabel('Terms')
+    ax.set_title('Theme {}'.format(theme_num))
+    plt.show()
+
+
 def main():
     filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
-    path = data_to_path(filepath, 10000)
+    path = data_to_path(filepath, 1000)
+    print "Data Imported \n"
     words = paths_to_docs(path)
+    print "Document converted \n"
     corpus, dictionary = words_to_corpus(words)
+    print "Building gensim LDA Model. This may take a long time. \n"
     lda_model = gen_lda_model(corpus, dictionary)
+    print "Model built! \n"
     num_vals, name_vals = split_nums_names(lda_model)
-    print pandas_visualization(num_vals, name_vals)
-
+    print "Terms of Importance by Topic (each row is a topic) \n"
+    word_df = pandas_visualization(num_vals, name_vals)
+    print word_df
+    print "Building graphs. \n"
+    graph_term_import(word_df.iloc[0, :], 1)
 
 if __name__ == "__main__":
     main()
