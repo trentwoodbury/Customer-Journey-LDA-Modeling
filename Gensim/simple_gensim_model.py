@@ -138,19 +138,24 @@ def main():
         #for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
-        path = pool.map(data_partial, [100])
+        path = pool.map(data_partial, [10])
         np.savez_compressed('path.npz', path)
 
     else:
         path = np.load('path.npz')
 
-    print path
-    words = paths_to_docs(path)
-    corpus, dictionary = words_to_corpus(words)
-    lda_model = gen_lda_model(corpus, dictionary)
-    num_vals, name_vals = split_nums_names(lda_model)
-    print "Terms of Importance by Topic (each row is a topic) \n"
-    word_df = pandas_visualization(num_vals, name_vals)
+    if not os.path.exists('/word_df.csv'):
+        words = paths_to_docs(path)
+        corpus, dictionary = words_to_corpus(words)
+        lda_model = gen_lda_model(corpus, dictionary)
+        num_vals, name_vals = split_nums_names(lda_model)
+        print "Terms of Importance by Topic (each row is a topic) \n"
+        word_df = pandas_visualization(num_vals, name_vals)
+        word_df.to_csv('word_df.csv')
+
+    else:
+        word_df = pd.read_csv('word_df.csv')
+
     print word_df
     print "Building graphs. \n"
     graph_term_import(word_df.iloc[0, :], 1)
