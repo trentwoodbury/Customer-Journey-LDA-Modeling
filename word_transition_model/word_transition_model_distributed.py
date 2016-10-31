@@ -153,7 +153,7 @@ def graph_term_import(df_row, theme_num, rerun = False, word_qty = 50):
     ax.set_ylabel('Terms')
     ax.set_title('Theme {}'.format(theme_num))
     make_axes_area_auto_adjustable(ax)
-    plt.savefig('visualization{}.png'.format(theme_num))
+    plt.savefig('distributed_visualization{}.png'.format(theme_num))
 
 
 def main():
