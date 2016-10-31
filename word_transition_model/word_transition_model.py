@@ -79,7 +79,7 @@ def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=50):
     #INPUT: word_qty: how many words
     #OUPUT: lda model in gensim print format
 
-    ldamodel = models.ldamodel.LdaModel(corpus, num_topics=10, id2word = dictionary, passes=20)
+    ldamodel = models.ldamodel.LdaModel(corpus, num_topics=topic_qty, id2word = dictionary, passes=20)
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
 
 def split_nums_names(topics_list):
@@ -176,10 +176,10 @@ def main():
     if not os.path.exists('./transitions_df.csv'):
         words = doc_combine(paths_to_docs(path))
         corpus, dictionary = words_to_corpus(words)
-        lda_model = gen_lda_model(corpus, dictionary)
+        lda_model = gen_lda_model(corpus, dictionary, topic_qty = 30)
         num_vals, name_vals = split_nums_names(lda_model)
         print "Terms of Importance by Topic (each row is a topic) \n"
-        word_df = pandas_visualization(num_vals, name_vals, word_qty = 50)
+        word_df = pandas_visualization(num_vals, name_vals, word_qty = 50, topic_qty=30)
         word_df.to_csv('transitions_df.csv')
         print word_df
         for i in range(len(word_df)):
@@ -187,14 +187,13 @@ def main():
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
-        print word_df[0,:]
-        # for i in range(len(word_df)):
-        #     graph_term_import(word_df.iloc[i, :], i, rerun = True)
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i, rerun = True)
 
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=1000)
+    np.set_printoptions(threshold=500)
     start_time = timer()
     main()
     print "Load time:", timer() - start_time
