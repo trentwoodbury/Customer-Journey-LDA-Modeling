@@ -36,6 +36,7 @@ def data_to_path(pre_df, qty):
         paths = np.vstack((paths, path))
 
     for journey in range(len(paths)):
+        paths[journey] = paths[journey][0].replace(' ', '.')
         paths[journey] = paths[journey][0].replace('->', ' ')
     #transpose data so that each journey is no longer a new column
     #after this transpose, each journey is a row
@@ -138,9 +139,9 @@ def graph_term_import(df_row, theme_num, rerun = False, word_qty = 50):
         y = [df_row[i*2+1] for i in range(word_qty)]
     x_pos = np.arange(word_qty)
     ticks_font = font_manager.FontProperties(family='Helvetica', style='normal',
-    size=4, weight='normal', stretch='normal')
+    size=7, weight='normal', stretch='normal')
 
-    fig = plt.figure(figsize = (12, 8))
+    fig = plt.figure(figsize = (16,12))
     ax = fig.add_subplot(111)
     ax.barh(x_pos, y, align='center', alpha=0.4)
     ax.set_yticks(x_pos)
@@ -162,14 +163,15 @@ def main():
         filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
 
-        #for multiprocessing (using all 4 cores)
+        for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
         path = pool.map(data_partial, [100])
-        np.savez_compressed('path.npz', path)
 
     else:
+        with open()
         path = np.load('path.npz')
+
     #this conditional allows us to skip the computationally intensive
     #parts of the code for running the code multiple times
     if not os.path.exists('./transitions_df.csv'):
@@ -186,13 +188,14 @@ def main():
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
-        print word_df
-        for i in range(len(word_df)):
-            graph_term_import(word_df.iloc[i, :], i, rerun = True)
+        print word_df[0,:]
+        # for i in range(len(word_df)):
+        #     graph_term_import(word_df.iloc[i, :], i, rerun = True)
 
 
 
 if __name__ == "__main__":
+    np.set_printoptions(threshold=1000)
     start_time = timer()
     main()
     print "Load time:", timer() - start_time
