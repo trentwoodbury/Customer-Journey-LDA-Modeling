@@ -1,11 +1,13 @@
 from functools import partial
 from gensim import corpora, models
+from matplotlib import font_manager
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 import multiprocessing
 import numpy as np
 import os
 import pandas as pd
+from timeit import default_timer as timer
 
 
 def load_data(filepath):
@@ -70,7 +72,7 @@ def words_to_corpus(words):
     corpus = [dictionary.doc2bow(text) for text in words]
     return corpus, dictionary
 
-def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=4):
+def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=50):
     #INPUT: corpus and dictionary.
     #INPUT: topic_qty: how many topics to cluster
     #INPUT: word_qty: how many words
@@ -123,19 +125,29 @@ def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
     return pd.DataFrame(n_themes)
 
 
-def graph_term_import(df_row, theme_num):
+def graph_term_import(df_row, theme_num, rerun = False, word_qty = 50):
     #INPUT: df_row, a row from the output of pandas_visualization
     #INPUT: theme_num, the theme number
     #OUPUT: Horizontal Bar Chart of term import in theme
     #output is limited to 3 top terms.
-    x = [df_row[i*2] for i in range(3)]
-    y = [df_row[i*2+1] for i in range(3)]
-    x_pos = np.arange(3)
-    fig = plt.figure(figsize = (10, 5))
+    if rerun:
+        x = [df_row[i*2+1] for i in range(word_qty)]
+        y = [df_row[i*2] for i in range(word_qty)]
+    else:
+        x = [df_row[i*2] for i in range(word_qty)]
+        y = [df_row[i*2+1] for i in range(word_qty)]
+    x_pos = np.arange(word_qty)
+    ticks_font = font_manager.FontProperties(family='Helvetica', style='normal',
+    size=4, weight='normal', stretch='normal')
+
+    fig = plt.figure(figsize = (12, 8))
     ax = fig.add_subplot(111)
     ax.barh(x_pos, y, align='center', alpha=0.4)
     ax.set_yticks(x_pos)
     ax.set_yticklabels(x)
+    for label in ax.get_yticklabels():
+        label.set_fontproperties(ticks_font)
+
     ax.set_xlabel('Correlation')
     ax.set_ylabel('Terms')
     ax.set_title('Theme {}'.format(theme_num))
@@ -146,7 +158,7 @@ def graph_term_import(df_row, theme_num):
 def main():
     #this conditional allows us to skip the computationally intensive
     #parts of the code for running the code multiple times
-    if not os.path.exists('/path.npz'):
+    if not os.path.exists('./path.npz'):
         filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
 
@@ -160,22 +172,27 @@ def main():
         path = np.load('path.npz')
     #this conditional allows us to skip the computationally intensive
     #parts of the code for running the code multiple times
-    if not os.path.exists('/word_df.csv'):
+    if not os.path.exists('./transitions_df.csv'):
         words = doc_combine(paths_to_docs(path))
         corpus, dictionary = words_to_corpus(words)
         lda_model = gen_lda_model(corpus, dictionary)
         num_vals, name_vals = split_nums_names(lda_model)
         print "Terms of Importance by Topic (each row is a topic) \n"
-        word_df = pandas_visualization(num_vals, name_vals)
+        word_df = pandas_visualization(num_vals, name_vals, word_qty = 50)
         word_df.to_csv('transitions_df.csv')
+        print word_df
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i, rerun = False)
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
+        print word_df
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i, rerun = True)
 
-    print word_df
 
-    for i in range(len(word_df)):
-        graph_term_import(word_df.iloc[i, :], i)
 
 if __name__ == "__main__":
+    start_time = timer()
     main()
+    print "Load time:", timer() - start_time
