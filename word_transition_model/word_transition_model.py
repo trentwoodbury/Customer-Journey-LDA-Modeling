@@ -163,13 +163,12 @@ def main():
         filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
 
-        for multiprocessing (using all 4 cores)
+        # for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
         path = pool.map(data_partial, [100])
 
     else:
-        with open()
         path = np.load('path.npz')
 
     #this conditional allows us to skip the computationally intensive
