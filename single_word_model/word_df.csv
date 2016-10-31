@@ -1,0 +1,11 @@
+,0,1,2,3,4,5,6,7
+0,web.entry ,0.433,webstc.error , 0.294,marketing , 0.104,webstc.faq, 0.083
+1,agent.entry ,0.939,agent.exit , 0.060,agent.error , 0.001,tsys.bankruptcy, 0.000
+2,webevent.login ,0.500,web.entry , 0.500,tsys.bankruptcy , 0.000,mblstc.faq, 0.000
+3,reward ,0.565,web.entry , 0.393,alerts.delivered , 0.042,tsys.bankruptcy, 0.000
+4,mobile.entry ,0.993,mblstc.error , 0.004,tsys.chargeback , 0.003,tsys.language, 0.000
+5,web.entry ,0.498,web.exit , 0.322,webstc.activation , 0.180,tsys.bankruptcy, 0.000
+6,ivr.entry ,0.928,ivr.activation , 0.065,ivr.fraud , 0.007,tsys.bankruptcy, 0.000
+7,web.entry ,0.987,webstc.chat-reject , 0.013,tsys.bankruptcy , 0.000,webstc.chat-ignore, 0.000
+8,declined ,0.792,web.entry , 0.202,ivr.privacy , 0.004,webstc.search, 0.002
+9,chordiant ,0.693,agent.entry , 0.282,webstc.chat-ignore , 0.024,tsys.bankruptcy, 0.000
