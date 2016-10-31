@@ -1,3 +1,4 @@
+import boto
 from functools import partial
 from gensim import corpora, models
 from matplotlib import font_manager
@@ -9,6 +10,8 @@ import os
 import pandas as pd
 from timeit import default_timer as timer
 
+access_key = os.environ('AWS_ACCESS_KEY')
+secret_access_key = os.environ('AWS_SECRET_ACCESS_KEY')
 
 def load_data(filepath):
     #INPUT: filepath to csv file
@@ -160,7 +163,7 @@ def main():
     #this conditional allows us to skip the computationally intensive
     #parts of the code for running the code multiple times
     if not os.path.exists('./path.npz'):
-        filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
+        filepath =  'https://s3.amazonaws.com/wordtransitionlda/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
 
         # for multiprocessing (using all 4 cores)
