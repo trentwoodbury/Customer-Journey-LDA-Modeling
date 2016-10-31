@@ -167,7 +167,7 @@ def main():
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
         path = pool.map(data_partial, [100])
-
+        np.savez_compressed('path.npz', path)
     else:
         path = np.load('path.npz')
 
