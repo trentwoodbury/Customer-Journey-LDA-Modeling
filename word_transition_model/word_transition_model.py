@@ -48,7 +48,6 @@ def paths_to_docs(path):
     #OUTPUT: words, a list of documents (list of lists of words)
     words = []
     for string in path[0][0]:
-        print string
         word_list = string.split()
         words.append(string.split())
     return words
@@ -125,18 +124,15 @@ def pandas_visualization(num_vals, name_vals, word_qty= 4, topic_qty= 10):
     return pd.DataFrame(n_themes)
 
 
-def graph_term_import(df_row, theme_num, rerun = False, word_qty = 50):
+def graph_term_import(df_row, theme_num, word_qty = 50):
     #INPUT: df_row, a row from the output of pandas_visualization
     #INPUT: theme_num, the theme number
     #OUPUT: Horizontal Bar Chart of term import in theme
-    #output is limited to 3 top terms.
-    if rerun:
-        x = [df_row[i*2+1] for i in range(word_qty)]
-        y = [df_row[i*2] for i in range(word_qty)]
-    else:
-        x = [df_row[i*2] for i in range(word_qty)]
-        y = [df_row[i*2+1] for i in range(word_qty)]
-    x_pos = np.arange(word_qty)
+
+    #x is labels, y is values
+    x = [df_row[i*2+1] for i in range(1, word_qty)]
+    y = [float(df_row[i*2]) if str(df_row[i*2]) > '0' else 0 for i in range(1, word_qty)]
+    x_pos = np.arange(word_qty-1)
     ticks_font = font_manager.FontProperties(family='Helvetica', style='normal',
     size=7, weight='normal', stretch='normal')
 
@@ -165,7 +161,7 @@ def main():
         # for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
-        path = pool.map(data_partial, [438981])
+        path = pool.map(data_partial, [500])
         np.savez_compressed('path.npz', path)
     else:
         path = np.load('path.npz')
@@ -182,12 +178,12 @@ def main():
         word_df.to_csv('transitions_df.csv')
         print word_df
         for i in range(len(word_df)):
-            graph_term_import(word_df.iloc[i, :], i, rerun = False)
+            graph_term_import(word_df.iloc[i, :], i)
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
         for i in range(len(word_df)):
-            graph_term_import(word_df.iloc[i, :], i, rerun = True)
+            graph_term_import(word_df.iloc[i, :], i)
 
 
 
