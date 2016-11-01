@@ -15,7 +15,7 @@ def load_data(filepath):
     #OUTPUT: returns dataframe of filepath's csv file
     pre_df = pd.read_csv(filepath, header = 0)
     return pre_df
-    # pre_df should have length of 438,983
+    # pre_df should have length of 438,982
 
 def data_to_path(pre_df, qty):
     #INPUT: pre_df, dataframe
@@ -165,7 +165,7 @@ def main():
         # for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
-        path = pool.map(data_partial, [100])
+        path = pool.map(data_partial, [438981])
         np.savez_compressed('path.npz', path)
     else:
         path = np.load('path.npz')
@@ -181,13 +181,13 @@ def main():
         word_df = pandas_visualization(num_vals, name_vals, word_qty = 50, topic_qty=30)
         word_df.to_csv('transitions_df.csv')
         print word_df
-        # for i in range(len(word_df)):
-        #     graph_term_import(word_df.iloc[i, :], i, rerun = False)
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i, rerun = False)
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
-        # for i in range(len(word_df)):
-        #     graph_term_import(word_df.iloc[i, :], i, rerun = True)
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i, rerun = True)
 
 
 
