@@ -13,7 +13,7 @@ from timeit import default_timer as timer
 def load_data(filepath):
     #INPUT: filepath to csv file
     #OUTPUT: returns dataframe of filepath's csv file
-    pre_df = pd.read_csv(filepath, header = 1)
+    pre_df = pd.read_csv(filepath, header = 0)
     return pre_df
     # pre_df should have length of 438,983
 
@@ -26,12 +26,12 @@ def data_to_path(pre_df, qty):
 
     #Create a numpy array of user journeys
     paths = np.array([ 'Path'])
-    for i in range(2, qty):
+    for i in range(1, qty):
         #select random row without replacement
         #range starts at row 3 to not include headers
-        row_ind = np.random.choice(range(3, len(pre_df)), replace = False)
+        row_ind = np.random.choice(range(0, len(pre_df)), replace = False)
         #extract path from row
-        path = list(str(pre_df.iloc[row_ind, :]).split())[1]
+        path = pre_df['Path'][row_ind]
         #add path to paths numpy array
         paths = np.vstack((paths, path))
 
@@ -47,11 +47,9 @@ def paths_to_docs(path):
     #INPUT: path, output of data_to_paths() function
     #OUTPUT: words, a list of documents (list of lists of words)
     words = []
-    for val in path[0]:
-        for string in val:
-            word_list = string.split()
-            #treat journey.entry as stopword.
-            words.append(string.split())
+    for string in path[0]:
+        word_list = string.split()
+        words.append(string.split())
     return words
 
 def doc_combine(words_list):
@@ -166,7 +164,7 @@ def main():
         # for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
-        path = pool.map(data_partial, [100])
+        path = pool.map(data_partial, [438980])
         np.savez_compressed('path.npz', path)
     else:
         path = np.load('path.npz')
@@ -193,7 +191,7 @@ def main():
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=500)
+    np.set_printoptions(threshold=10000)
     start_time = timer()
     main()
     print "Load time:", timer() - start_time
