@@ -47,7 +47,8 @@ def paths_to_docs(path):
     #INPUT: path, output of data_to_paths() function
     #OUTPUT: words, a list of documents (list of lists of words)
     words = []
-    for string in path[0]:
+    for string in path[0][0]:
+        print string
         word_list = string.split()
         words.append(string.split())
     return words
@@ -164,7 +165,7 @@ def main():
         # for multiprocessing (using all 4 cores)
         pool = multiprocessing.Pool(4)
         data_partial = partial(data_to_path, pre_df)
-        path = pool.map(data_partial, [438980])
+        path = pool.map(data_partial, [100])
         np.savez_compressed('path.npz', path)
     else:
         path = np.load('path.npz')
@@ -180,18 +181,18 @@ def main():
         word_df = pandas_visualization(num_vals, name_vals, word_qty = 50, topic_qty=30)
         word_df.to_csv('transitions_df.csv')
         print word_df
-        for i in range(len(word_df)):
-            graph_term_import(word_df.iloc[i, :], i, rerun = False)
+        # for i in range(len(word_df)):
+        #     graph_term_import(word_df.iloc[i, :], i, rerun = False)
 
     else:
         word_df = pd.read_csv('transitions_df.csv')
-        for i in range(len(word_df)):
-            graph_term_import(word_df.iloc[i, :], i, rerun = True)
+        # for i in range(len(word_df)):
+        #     graph_term_import(word_df.iloc[i, :], i, rerun = True)
 
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=10000)
+    np.set_printoptions(threshold=1000)
     start_time = timer()
     main()
     print "Load time:", timer() - start_time
