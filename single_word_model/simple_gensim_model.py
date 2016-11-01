@@ -1,6 +1,8 @@
 from functools import partial
 from gensim import corpora, models
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 import multiprocessing
 import numpy as np
 import os
@@ -114,23 +116,31 @@ def graph_term_import(df_row, theme_num):
     #INPUT: theme_num, the theme number
     #OUPUT: Horizontal Bar Chart of term import in theme
     #output is limited to 3 top terms.
-    x = [df_row[i*2] for i in range(3)]
-    y = [df_row[i*2+1] for i in range(3)]
+    x = [df_row[i*2] for i in range(0, 3)]
+    y = [float(df_row[i*2+1]) if str(df_row[i*2]) > '0' else 0 for i in range(0, 3)]
+    print y, '\n\n\n'
     x_pos = np.arange(3)
-    fig = plt.figure(figsize = (10, 5))
+    ticks_font = font_manager.FontProperties(family='Helvetica', style='normal',
+    size=16, weight='normal', stretch='normal')
+
+    fig = plt.figure(figsize = (16,12))
     ax = fig.add_subplot(111)
     ax.barh(x_pos, y, align='center', alpha=0.4)
     ax.set_yticks(x_pos)
     ax.set_yticklabels(x)
+    for label in ax.get_yticklabels():
+        label.set_fontproperties(ticks_font)
+
     ax.set_xlabel('Correlation')
     ax.set_ylabel('Terms')
     ax.set_title('Theme {}'.format(theme_num))
-    plt.show()
+    make_axes_area_auto_adjustable(ax)
+    plt.savefig('visualization{}.png'.format(theme_num))
 
 
 def main():
-    #this conditional allows us to skip the computationally intensive
-    #parts of the code for running the code multiple times
+    this conditional allows us to skip the computationally intensive
+    parts of the code for running the code multiple times
     if not os.path.exists('/path.npz'):
         filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
@@ -155,6 +165,8 @@ def main():
 
     else:
         word_df = pd.read_csv('word_df.csv')
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i)
 
     print word_df
     print "Building graphs. \n"
