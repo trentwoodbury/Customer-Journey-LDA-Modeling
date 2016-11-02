@@ -73,6 +73,15 @@ def get_distances(lda_vec):
             row_count += 1
     return distance_mat
 
+def make_dist_mat(distances):
+    #INPUT: distances, output of get_distances()
+    #OUTPUT: properly formatted distance matrix
+    distance_matrix = np.empty((30, 30))
+    for row in distances:
+        distance_matrix[row[0]][row[1]] = row[2]
+        distance_matrix[row[1]][row[0]] = row[2]
+    return distance_matrix
+
 
 
 if __name__ == "__main__":
@@ -92,5 +101,8 @@ if __name__ == "__main__":
     #Make subject vectors
     word_list = list(word_set)
     lda_vec = make_vectors(word_list, word_df)
-    dist_mat = get_distances(lda_vec)
+    distances = get_distances(lda_vec)
+
+    #Make distance matrix
+    dist_mat = make_dist_mat(distances)
     print dist_mat
