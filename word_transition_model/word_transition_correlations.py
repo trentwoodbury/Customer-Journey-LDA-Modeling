@@ -48,13 +48,18 @@ def make_vectors(word_list, word_df):
     #INPUT: word_df, dataframe of top 50 words for all 30 subjects
     #OUTPUT: numpy array where columns are each unique word in word_set and
     #rows
-    lda_vec = np.empty((len(word_df),len(word_set)))
-    for word_i, word in enumerate(word_list):
-        for row_i, row in enumerate(word_df):
-            for cell_i, cell in enumerate(row):
-                if cell == word:
-                    lda_vec[row_i, word_i] = word_df.iloc[row_i, cell_i+1]
-    return lda_vec
+    lda_vec = np.empty((len(word_df),len(word_list)))
+    dict_list = [{word[:-1]: corr for word, corr in zip(word_df.iloc[row][::2], word_df.iloc[row][1::2])}\
+                 for row in range(len(word_df))]
+    lda_vectors = pd.DataFrame(dict_list, columns = word_list).fillna(0).values
+    for row_i, row in enumerate(lda_vectors):
+        for col_i, col in enumerate(row):
+            try:
+                float(col)
+            except:
+                lda_vectors[row_i, col_i] = 0
+
+    return lda_vectors
 
 def get_distances(lda_vec):
     #INPUT: lda_vec, output of make_vectors function
@@ -63,9 +68,12 @@ def get_distances(lda_vec):
     row_count = 0
     for row_i in range(len(lda_vec)-1):
         for row_j in range(row_i+1, len(lda_vec)):
-            distance_mat[row_count, 0] = row_i
-            distance_mat[row_count, 1] = row_j
-            distance_mat[row_count, 2] = np.linalg.norm(lda_vec[row_i]-lda_vec[row_j])
+            distance_mat[row_count, 0] = int(row_i)
+            distance_mat[row_count, 1] = int(row_j)
+            try:
+                distance_mat[row_count, 2] = spatial.distance.pdist([lda_vec[row_i], lda_vec[row_j]], 'euclidean')
+            except:
+                print 'row 1:', row_i, 'row 2:', row_j
             row_count += 1
     return distance_mat
 
@@ -88,7 +96,7 @@ def main():
     #Make subject vectors
     word_list = list(word_set)
     lda_vec = make_vectors(word_list, word_df)
-    Y = get_distances(lda_vec)
+    dist_mat = get_distances(lda_vec)
 
 
 
