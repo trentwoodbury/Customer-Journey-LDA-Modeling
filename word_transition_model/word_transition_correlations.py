@@ -10,6 +10,7 @@ import numpy as np
 import os
 import pandas as pd
 from scipy import sparse
+from scipy import spatial
 from timeit import default_timer as timer
 
 
@@ -52,10 +53,10 @@ def make_vectors(word_list, word_df):
     dict_list = [{word[:-1]: corr for word, corr in zip(word_df.iloc[row][::2], word_df.iloc[row][1::2])}\
                  for row in range(len(word_df))]
     lda_vectors = pd.DataFrame(dict_list, columns = word_list).fillna(0).values
-    for row_i, row in enumerate(lda_vectors):
-        for col_i, col in enumerate(row):
+    for row_i in range(len(lda_vectors)):
+        for col_i in range(len(lda_vectors[0])):
             try:
-                float(col)
+                lda_vectors[row_i, col_i] = float(lda_vectors[row_i, col_i])
             except:
                 lda_vectors[row_i, col_i] = 0
 
@@ -79,8 +80,9 @@ def get_distances(lda_vec):
 
 
 
+if __name__ == "__main__":
+    start_time = timer()
 
-def main():
     #Read in numpy array of
     path = np.load('path.npz')
     words = doc_combine(paths_to_docs(path['arr_0']))
@@ -97,10 +99,7 @@ def main():
     word_list = list(word_set)
     lda_vec = make_vectors(word_list, word_df)
     dist_mat = get_distances(lda_vec)
+    print dist_mat
 
 
-
-if __name__ == "__main__":
-    start_time = timer()
-    main()
     print "Load time:", timer() - start_time
