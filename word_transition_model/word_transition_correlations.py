@@ -56,6 +56,18 @@ def make_vectors(word_list, word_df):
                     lda_vec[row_i, word_i] = word_df.iloc[row_i, cell_i+1]
     return lda_vec
 
+def get_distances(lda_vec):
+    #INPUT: lda_vec, output of make_vectors function
+    #OUTPUT: matrix of distances between rows of lda_vec
+    distance_mat = np.empty((435, 3))
+    row_count = 0
+    for row_i in range(len(lda_vec)-1):
+        for row_j in range(row_i+1, len(lda_vec)):
+            distance_mat[row_count, 0] = row_i
+            distance_mat[row_count, 1] = row_j
+            distance_mat[row_count, 2] = np.linalg.norm(lda_vec[row_i]-lda_vec[row_j])
+            row_count += 1
+    return distance_mat
 
 
 
@@ -75,8 +87,8 @@ def main():
 
     #Make subject vectors
     word_list = list(word_set)
-    subject_array = make_vectors(word_list, word_df)
-
+    lda_vec = make_vectors(word_list, word_df)
+    Y = get_distances(lda_vec)
 
 
 
