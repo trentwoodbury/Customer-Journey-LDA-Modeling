@@ -1,17 +1,12 @@
 #This program is to be run after word_transition_model.py has run
 
 from functools import partial
-from gensim import corpora, models
-from matplotlib import font_manager
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 import multiprocessing
 import numpy as np
 import os
 import pandas as pd
 from scipy import sparse
 from scipy import spatial
-from timeit import default_timer as timer
 
 
 def paths_to_docs(path):
@@ -81,7 +76,6 @@ def get_distances(lda_vec):
 
 
 if __name__ == "__main__":
-    start_time = timer()
 
     #Read in numpy array of
     path = np.load('path.npz')
@@ -100,6 +94,3 @@ if __name__ == "__main__":
     lda_vec = make_vectors(word_list, word_df)
     dist_mat = get_distances(lda_vec)
     print dist_mat
-
-
-    print "Load time:", timer() - start_time
