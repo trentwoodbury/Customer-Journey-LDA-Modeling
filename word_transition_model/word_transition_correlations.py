@@ -9,7 +9,9 @@ import multiprocessing
 import numpy as np
 import os
 import pandas as pd
+from scipy import sparse
 from timeit import default_timer as timer
+
 
 def paths_to_docs(path):
     #INPUT: path, output of data_to_paths() function
@@ -41,13 +43,21 @@ def words_to_set(words):
             word_set.add(word)
     return word_set
 
-def make_vectors(word_set, word_df):
+def make_vectors(word_list, word_df):
     #INPUT: word_set, output of words_to_set
     #INPUT: word_df, dataframe of top 50 words for all 30 subjects
     #OUTPUT: numpy array where columns are each unique word in word_set and
     #rows
     lda_vec = np.empty((len(word_df),len(word_set)))
-    words = 
+    for word_i, word in enumerate(word_list):
+        for row_i, row in enumerate(word_df):
+            for cell_i, cell in enumerate(row):
+                if cell == word:
+                    lda_vec[row_i, word_i] = word_df.iloc[row_i, cell_i+1]
+    return lda_vec
+
+
+
 
 
 def main():
@@ -58,6 +68,15 @@ def main():
 
     #Read in word correlation results
     word_df = pd.read_csv('transitions_df.csv')
+    #remove column of row numbers.
+    #Whether this line is required depends on the nature of the dataframe.
+    #Make sure to look at the dataframe before running this line of code.
+    word_df = word_df.iloc[:, 1:]
+
+    #Make subject vectors
+    word_list = list(word_set)
+    subject_array = make_vectors(word_list, word_df)
+
 
 
 
