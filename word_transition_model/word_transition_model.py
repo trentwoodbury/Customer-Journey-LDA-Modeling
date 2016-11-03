@@ -14,22 +14,23 @@ from timeit import default_timer as timer
 def load_data(filepath):
     #INPUT: filepath to csv file
     #OUTPUT: returns dataframe of filepath's csv file
+
     pre_df = pd.read_csv(filepath, header = 0)
     return pre_df
     # pre_df should have length of 438,982
 
 def data_to_path(pre_df, qty):
     #INPUT: pre_df, dataframe
-    #INPUT: shortener, quantity to cut data (to run faster)
+    #INPUT: quantity of rows to read in, 438982 for total dataframe.
+    #OUTPUT: paths, list os list of words
 
-    #Create a numpy array of user journeys
     paths = []
     for i in range(0, qty):
          paths.append(pre_df['Path'][i].replace(' ', '.').replace('->', ' ').split())
     return paths
 
 def doc_combine(words_list):
-    #INPUT: list list of words (output of data_to_path() function)
+    #INPUT: list of  list of words (output of data_to_path() function)
     #OUTPUT: list of list of word transitions
 
     result_list = []
@@ -43,6 +44,7 @@ def doc_combine(words_list):
 def words_to_corpus(words):
     #INPUT: list of lists of words (output of doc_combine() function)
     #OUTPUT: Corpus of words matched with frequency and dictionary
+
     dictionary = corpora.Dictionary(words)
     corpus = [dictionary.doc2bow(text) for text in words]
     return corpus, dictionary
@@ -51,7 +53,7 @@ def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=50):
     #INPUT: corpus and dictionary.
     #INPUT: topic_qty: how many topics to cluster
     #INPUT: word_qty: how many words
-    #OUPUT: lda model in gensim print format
+    #OUTPUT: lda model in gensim print format
 
     ldamodel = models.ldamodel.LdaModel(corpus, num_topics=topic_qty, id2word = dictionary, passes=20)
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
@@ -60,6 +62,7 @@ def split_nums_names(topics_list):
     #INPUT: LDA model in gensim printed format
     #OUTPUT: num_vals, list of percents of topic explained by each term
     #OUTPUT: name_vals, list of terms
+
     num_vals = []
     name_vals = []
     for idx, topic in enumerate(topics_list):
@@ -135,10 +138,8 @@ def main():
         pre_df = load_data(filepath)
         path = data_to_path(pre_df, 1000)
         np.savez_compressed('data/path.npz', path)
-    else:
-        path = np.load('data/path.npz')
 
-    #this conditional allows us to skip the computationally intensive
+    #this conditional allows us to skip more of the computationally intensive
     #parts of the code for running the code multiple times
     if not os.path.exists('data/transitions_df.csv'):
         words = doc_combine(path)
@@ -154,6 +155,9 @@ def main():
 
     else:
         word_df = pd.read_csv('data/transitions_df.csv')
+        print "Terms of Importance by Topic (each row is a topic) \n"
+        word_df = pandas_visualization(num_vals, name_vals, word_qty = 50, topic_qty=30)
+        print word_df
         # for i in range(len(word_df)):
         #     graph_term_import(word_df.iloc[i, :], i)
 
