@@ -1,12 +1,14 @@
 #This program is to be run after word_transition_model.py has run
 
 from functools import partial
+import matplotlib.pyplot as plt
 import multiprocessing
 import numpy as np
 import os
 import pandas as pd
 from scipy import sparse
 from scipy import spatial
+from wordcloud import WordCloud
 
 
 def paths_to_docs(path):
@@ -79,20 +81,70 @@ def make_dist_mat(distances):
     distance_matrix = np.empty((30, 30))
     for row in distances:
         distance_matrix[row[0]][row[1]] = row[2]
-        distance_matrix[row[1]][row[0]] = row[2]
     return distance_matrix
 
+def heat_map(dist_mat):
+    #INPUT: distance matrix
+    #OUTPUT: heat map of distances
+
+    #Normalize data to size that can be read by matplotlib
+    for row_i, row in enumerate(dist_mat):
+        for col_i, cell in enumerate(row):
+            dist_mat[row_i][col_i] = dist_mat[row_i][col_i]*10
+
+    #Main Plot Body
+    fig = plt.figure(figsize = (16,12))
+    ax = fig.add_subplot(111)
+    ax.pcolor(dist_mat, cmap='Blues')
+    ax.grid(True)
+
+    #Y axis
+    ax.set_ylabel('Theme Number')
+    ax.set_yticks(np.arange(30))
+    ax.set_yticklabels(np.arange(30))
+
+    #X axis
+    ax.set_xlabel('Theme Number')
+    ax.set_xticks(np.arange(30))
+    ax.set_xticklabels(np.arange(30))
+
+
+    #Title
+    ax.set_title('Distance Matrix', fontsize = 18)
+
+    plt.savefig('visualizations/distance_matrix.png')
+
+
+def word_cloud(word_df_row, theme_num):
+    #INPUT: row of word_df dataframe
+    #OUTPUT: Word Cloud
+
+    #Make repeating string to represent correlations
+    repeated_string = ''
+    for cell in range(50):
+        if type(word_df_row[(2*cell)+1]) == np.float64:
+            repeated_string += int(100*word_df_row[(2*cell)+1]) * \
+            (' ' + word_df_row[2*cell].replace('.', '_').replace(' ', '___'))
+    wordcloud = WordCloud().generate(repeated_string)
+
+    #Plot Word Cloud
+    fig = plt.figure(figsize = (20, 20))
+    ax = fig.add_subplot(111)
+    ax.imshow(wordcloud)
+    ax.set_title('Word Cloud {}'.format(theme_num), fontsize = 20)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    plt.savefig('visualizations/word_cloud_{}.png'.format(theme_num))
 
 
 if __name__ == "__main__":
-
     #Read in numpy array of
-    path = np.load('path.npz')
+    path = np.load('data/path.npz')
     words = doc_combine(paths_to_docs(path['arr_0']))
     word_set = words_to_set(words)
 
     #Read in word correlation results
-    word_df = pd.read_csv('transitions_df.csv')
+    word_df = pd.read_csv('data/transitions_df.csv')
     #remove column of row numbers.
     #Whether this line is required depends on the nature of the dataframe.
     #Make sure to look at the dataframe before running this line of code.
@@ -105,4 +157,8 @@ if __name__ == "__main__":
 
     #Make distance matrix
     dist_mat = make_dist_mat(distances)
-    print dist_mat
+    heat_map(dist_mat)
+
+    #Make word clouds
+    for i in range(len(word_df)):
+        word_cloud(word_df.iloc[i], i+1)
