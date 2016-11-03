@@ -10,27 +10,16 @@ from scipy import sparse
 from scipy import spatial
 from wordcloud import WordCloud
 
-
-def paths_to_docs(path):
-    #INPUT: path, output of data_to_paths() function
-    #OUTPUT: words, a list of documents (list of lists of words)
-    words = []
-    for string in path[0][0]:
-        word_list = string.split()
-        words.append(string.split())
-    return words
-
 def doc_combine(words_list):
-    #INPUT: list list of words (output of paths_to_docs() function)
+    #INPUT: list list of words
     #OUTPUT: list of list of word transitions
-    for doc_i, doc in enumerate(words_list):
+    result_list = []
+    for  doc in words_list:
         #Check to see if document contains more than 1 word
         if len(doc) > 1:
-            #if doc contains 2+ words, iterate through all except last word
-            for word_i in range(len(doc)-1):
-                #convert each word to that word + the next word
-                words_list[doc_i][word_i] = str(words_list[doc_i][word_i])+ ' ' + str(words_list[doc_i][word_i + 1])
-    return words_list
+            zip_list = zip(doc, doc[1:])
+            result_list.append([val[0] + ' ' + val[1] for val in zip_list])
+    return result_list
 
 def words_to_set(words):
     #INPUT: list of lists of words
@@ -62,18 +51,18 @@ def make_vectors(word_list, word_df):
 def get_distances(lda_vec):
     #INPUT: lda_vec, output of make_vectors function
     #OUTPUT: matrix of distances between rows of lda_vec
-    distance_mat = np.empty((435, 3))
+    distances = np.empty((435, 3))
     row_count = 0
     for row_i in range(len(lda_vec)-1):
         for row_j in range(row_i+1, len(lda_vec)):
-            distance_mat[row_count, 0] = int(row_i)
-            distance_mat[row_count, 1] = int(row_j)
+            distances[row_count, 0] = int(row_i)
+            distances[row_count, 1] = int(row_j)
             try:
-                distance_mat[row_count, 2] = spatial.distance.pdist([lda_vec[row_i], lda_vec[row_j]], 'euclidean')
+                distances[row_count, 2] = spatial.distance.pdist([lda_vec[row_i], lda_vec[row_j]], 'euclidean')
             except:
                 print 'row 1:', row_i, 'row 2:', row_j
             row_count += 1
-    return distance_mat
+    return distances
 
 def make_dist_mat(distances):
     #INPUT: distances, output of get_distances()
@@ -87,10 +76,10 @@ def heat_map(dist_mat):
     #INPUT: distance matrix
     #OUTPUT: heat map of distances
 
-    #Normalize data to size that can be read by matplotlib
+    # #Normalize data to size that can be read by matplotlib
     for row_i, row in enumerate(dist_mat):
         for col_i, cell in enumerate(row):
-            dist_mat[row_i][col_i] = dist_mat[row_i][col_i]*10
+            dist_mat[row_i][col_i] = dist_mat[row_i][col_i]
 
     #Main Plot Body
     fig = plt.figure(figsize = (16,12))
@@ -139,8 +128,8 @@ def word_cloud(word_df_row, theme_num):
 
 if __name__ == "__main__":
     #Read in numpy array of
-    path = np.load('data/path.npz')
-    words = doc_combine(paths_to_docs(path['arr_0']))
+    path = np.load('data/path.npz')['arr_0']
+    words = doc_combine(path)
     word_set = words_to_set(words)
 
     #Read in word correlation results
@@ -159,6 +148,6 @@ if __name__ == "__main__":
     dist_mat = make_dist_mat(distances)
     heat_map(dist_mat)
 
-    #Make word clouds
-    for i in range(len(word_df)):
-        word_cloud(word_df.iloc[i], i+1)
+    # #Make word clouds
+    # for i in range(len(word_df)):
+    #     word_cloud(word_df.iloc[i], i+1)
