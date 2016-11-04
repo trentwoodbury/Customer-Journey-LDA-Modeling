@@ -1,3 +1,4 @@
+import cPickle
 from functools import partial
 from gensim import corpora, models
 from matplotlib import font_manager
@@ -56,6 +57,7 @@ def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=50):
     #OUTPUT: lda model in gensim print format
 
     ldamodel = models.ldamodel.LdaModel(corpus, num_topics=topic_qty, id2word = dictionary, passes=20)
+    cPickle.dump(ldamodel, open('data_pkl/ldamodel.pkl', 'w'))
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
 
 def split_nums_names(topics_list):
@@ -123,7 +125,7 @@ def graph_term_import(df_row, theme_num, word_qty = 50):
     for label in ax.get_yticklabels():
         label.set_fontproperties(ticks_font)
 
-    ax.set_xlabel('Correlation')
+    ax.set_xlabel('Word Probability')
     ax.set_ylabel('Terms')
     ax.set_title('Theme {}'.format(theme_num))
     make_axes_area_auto_adjustable(ax)
@@ -138,6 +140,11 @@ def main():
         pre_df = load_data(filepath)
         path = data_to_path(pre_df, 1000)
         np.savez_compressed('data/path.npz', path)
+
+    #These lines should only be included if you have path.npz and not
+    #transitions_df.csv
+    # else:
+    #     path = np.load('data/path.npz')['arr_0']
 
     #this conditional allows us to skip more of the computationally intensive
     #parts of the code for running the code multiple times
@@ -156,10 +163,9 @@ def main():
     else:
         word_df = pd.read_csv('data/transitions_df.csv')
         print "Terms of Importance by Topic (each row is a topic) \n"
-        word_df = pandas_visualization(num_vals, name_vals, word_qty = 50, topic_qty=30)
         print word_df
-        # for i in range(len(word_df)):
-        #     graph_term_import(word_df.iloc[i, :], i)
+        for i in range(len(word_df)):
+            graph_term_import(word_df.iloc[i, :], i)
 
 
 
