@@ -39,7 +39,7 @@ def doc_combine(words_list):
         #Check to see if document contains more than 1 word
         if len(doc) > 1:
             zip_list = zip(doc, doc[1:])
-            result_list.append([val[0] + ' ' + val[1] for val in zip_list])
+            result_list.append([val[0] + '->' + val[1] for val in zip_list])
     return result_list
 
 def words_to_corpus(words):
@@ -57,7 +57,7 @@ def gen_lda_model(corpus, dictionary, topic_qty = 10, word_qty=50):
     #OUTPUT: lda model in gensim print format
 
     ldamodel = models.ldamodel.LdaModel(corpus, num_topics=topic_qty, id2word = dictionary, passes=20)
-    cPickle.dump(ldamodel, open('data_pkl/ldamodel.pkl', 'w'))
+    cPickle.dump(ldamodel, open('data/ldamodel.pkl', 'w'))
     return ldamodel.print_topics(num_topics=topic_qty, num_words = word_qty)
 
 def split_nums_names(topics_list):
@@ -138,7 +138,7 @@ def main():
     if not os.path.exists('data/path.npz'):
         filepath = '../../data/Top_Traversals_demo-1daybehavior_20140401.csv'
         pre_df = load_data(filepath)
-        path = data_to_path(pre_df, 1000)
+        path = data_to_path(pre_df, 100)
         np.savez_compressed('data/path.npz', path)
 
     #These lines should only be included if you have path.npz and not
