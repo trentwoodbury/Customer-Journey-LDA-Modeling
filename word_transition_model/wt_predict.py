@@ -4,6 +4,14 @@ import numpy as np
 import pandas as pd
 
 
+def load_data(filepath):
+    #INPUT: filepath to csv file
+    #OUTPUT: returns dataframe of filepath's csv file
+
+    pre_df = pd.read_csv(filepath, header = 0)
+    return pre_df
+    # pre_df should have length of 438,982
+
 def get_model(filepath):
     #INPUT: filepath to model's pickle file
     #OUTPUT: LDA Model
@@ -27,3 +35,25 @@ def predict_text(formatted_list, model):
     dictionary = corpora.Dictionary(text)
     corpus = [dictionary.doc2bow(phrase) for phrase in text]
     return model.get_document_topics(corpus[0], minimum_probability=.05)
+
+def make_results_df(string_list, model):
+    #INPUT: list of strings to be converted and predicts
+    #OUTPUT: dataframe of strings and predictions
+    df = pd.DataFrame(columns=['Journey', 'Prediction'])
+    for string in string_list:
+        formatted_list = format_input_string(string)
+        prediction = predict_text(formatted_list, model)
+        df = df.append({'Journey': string, 'Prediction': prediction}, ignore_index = True)
+    return df
+
+
+if __name__ == '__main__':
+
+    pre_df = load_data('../../data/Top_Traversals_demo-1daybehavior_20140401.csv')
+
+    model = get_model('data/ldamodel.pkl')
+
+    #Make, print, and save predictions dataframe
+    df = make_results_df(pre_df['Path'][:100], model)
+    print df
+    df.to_csv('data/predictions.csv')
