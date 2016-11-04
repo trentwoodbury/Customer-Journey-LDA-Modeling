@@ -9,16 +9,14 @@ def get_model(filepath):
     #OUTPUT: LDA Model
     model = cPickle.load(open(filepath, 'r'))
     return model
+
 def format_input_string(input_string):
     #INPUT: string in format of original journey csv
     #OUTPUT: string formatted like "event->event event2->event2 etc."
     string_list = input_string.replace(' ', '.').replace('->', ' ').split()
     zip_list = zip(string_list, string_list[1:])
     formatted_list = [val[0] + '->' + val[1] for val in zip_list]
-    formatted_string = ''
-    for transition in formatted_list:
-        formatted_string += transition + ' '
-    return formatted_string[:-1]
+    return formatted_list
 
 def predict_text(formatted_list, model):
     #INPUT: journey to predit in list of strings format.
