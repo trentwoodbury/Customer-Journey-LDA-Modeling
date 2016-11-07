@@ -6,9 +6,11 @@
 ## The Data
 The data used for this was 440,000 rows by 17,000 columns of customer journey events. Due to the size of this data, manipulation was done via numpy with multiprocessing. The data were pickled along the way to ensure that code was not run redundantly.
 
-## Navigating this README
+## Navigating this Repo
+For a good introductory overview, you can check out the <strong> word_transition_demo.ipynb</strong> file. Otherwise, the file structure of this repo can be seen below. <br>
+
 <img src='images/file_structure.png'><br>
-For a good introductory overview, you can check out the <strong> word_transition_demo.ipynb</strong> file. <br>
+
 
 The first model for this data clustered on individual events. This code can be found in the <strong>single_word_model</strong> folder. The results of running this model can be found at <strong>single_word_model/visualizations</strong>. This model is not particularly interesting.
 <br>
