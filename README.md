@@ -8,6 +8,8 @@ The data used for this was 440,000 rows by 17,000 columns of customer journey ev
 
 ## Navigating this README
 <img src='images/file_structure.png'><br>
+For a good introductory overview, you can check out the <strong> word_transition_demo.ipynb</strong> file. <br>
+
 The first model for this data clustered on individual events. This code can be found in the <strong>single_word_model</strong> folder. The results of running this model can be found at <strong>single_word_model/visualizations</strong>. This model is not particularly interesting.
 <br>
 The second model clustered on transitions between events (i.e. event_a and then event_b). The code for this model can be found in the <strong>word_transition_model</strong> folder. The model and resultant dataframe based on transitions can be found in the <strong>word_transition_model/data</strong> folder. The results (analysis/visualization/recommendations) based on this model can be found in the <strong>word_transition_model/theme_analysis</strong> folder.
