@@ -4,7 +4,7 @@
 <a href ='http://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf'> Latent Dirichlet Allocation </a> (LDA) is a statistical model that extracts various topics from documents. It is usually used to cluster words by theme but I used it to cluster customer journeys for <a href='https://www.clickfox.com/'> Clickfox </a>. I found this problem incredibly interesting because it extends Natural Language Processing algorithms to non-natural language data. The goal of this project was to develop insights from modeling these customer journies with LDA.
 
 ## The Data
-The data used for this was 480,000 rows by 11,000 columns of customer journey events. Due to the size of this data, manipulation was done via numpy with multiprocessing. The data were pickled along the way to ensure that code was not run redundantly.
+The data used for this was 440,000 rows by 17,000 columns of customer journey events. Due to the size of this data, manipulation was done via numpy with multiprocessing. The data were pickled along the way to ensure that code was not run redundantly.
 
 ## Navigating this README
 <img src='images/file_structure.png'><br>
