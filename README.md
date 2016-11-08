@@ -43,4 +43,4 @@ Another visualization technique was the simple bar plot where each cluster was r
 <br>
 Finally, you can approach the clusters from a single event's perspective. The below radar plot shows the event "journey.entry->web.entry" and its correlation with 4 different clusters.
 <br>
-<img src='images/journey.entry->web.entry.png', height='450', width='500'>
+<img src='https://raw.githubusercontent.com/trentwoodbury/Customer-Journey-LDA-Modeling/master/images/journey.entry-%3Eweb.entry.png', height='450', width='500'>
