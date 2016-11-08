@@ -40,3 +40,7 @@ The result of this model was a predictor that can categorize a customer journey 
 Another visualization technique was the simple bar plot where each cluster was represented as a series of probabilities of different events (i.e. terms). In this visualization, each bar represents the probability of a word given a certain theme.<br>
 
 <img src="word_transition_model/visualizations/visualization3.png", height="700", widht="600">
+<br>
+Finally, you can approach the clusters from a single event's perspective. The below radar plot shows the event "journey.entry->web.entry" and its correlation with 4 different clusters.
+<br>
+<img src='images/journey.entry->web.entry.png', height='450', width='500'>
